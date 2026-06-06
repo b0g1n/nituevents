@@ -1,0 +1,10 @@
+node_modules/
+build/
+# dist/ - WordPress deployment requires built files
+!dist/
+dist/assets/*.map
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example

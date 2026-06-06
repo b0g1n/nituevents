@@ -1,0 +1,6 @@
+{
+  "name": "Nițu Events",
+  "description": "Website-ul de portofoliu profesional pentru Nițu Events - Servicii de fotografie, videografie, decoruri de nuntă și Oglindă Magică.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
