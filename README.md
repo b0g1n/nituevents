@@ -2,56 +2,56 @@
 
 Premium photography, videography and wedding decor services in Romania.
 
-## Shared Hosting Deployment Instructions
+## Shared Hosting Deployment
 
-### Option A: Static Files (Apache/Nginx)
+### Files Included (dist/ folder)
 
-1. **Build the project** (already done):
-   - All files in `dist/` are ready to deploy
-   - `index.html` is the entry point
-   - `.htaccess` handles SPA routing for Apache
+- `index.html` - Main SPA entry point
+- `.htaccess` - Apache URL rewriting for SPA routing
+- `server.php` - PHP fallback entry point (optional)
+- `favicon.svg` - SVG favicon
+- `favicon_nituevents_com_256x256.png` - PNG favicon (256x256)
+- `assets/index.js` - Built JavaScript bundle
+- `assets/index.css` - Built CSS bundle
 
-2. **Upload to shared hosting**:
+### Deployment Steps
+
+1. **Upload via FTP/SFTP**:
    - Upload all contents of `dist/` folder to your `public_html/` or `htdocs/` directory
-   - Or create a subdomain and point it to `dist/` folder
-   - File structure:
-   ```
-   public_html/
-   ├── index.html
-   ├── .htaccess
-   ├── favicon.svg
-   ├── favicon_nituevents_com_256x256.png
-   ├── assets/
-   │   ├── index.js
-   │   └── index.css
-   └── server.php (optional, for PHP compatibility)
-   ```
+   - Or upload to a subdomain folder (e.g., `nituevents/`)
 
-3. **Verify**:
-   - Visit your domain - the SPA should load
-   - All routes should work (navigation, gallery, etc.)
+2. **For subdirectories** (if installing to `yourdomain.com/nituevents/`):
+   - The build already uses relative paths (`./`)
+   - No additional configuration needed
 
-### Option B: PHP Wrapper (for hosts that prefer PHP entry)
+3. **Verify installation**:
+   - Visit your domain - the site should load
+   - Test navigation between pages (Acasă, Foto, Video, Decor, Oglindă)
 
-- Use `server.php` as entry point
-- Rename `index.html` to `spa.html` and adjust server.php if needed
+### .htaccess Routing
+
+The included `.htaccess` handles:
+- SPA client-side routing (all non-file URLs redirect to index.html)
+- Static asset caching
+- Security blocking for sensitive files
+
+### PHP Alternative
+
+If your host has issues with `.htaccess`, rename:
+1. `index.html` → `spa.html`
+2. Use `server.php` as the main entry point
 
 ## Development
 
 **Prerequisites:** Node.js
 
-1. Install dependencies:
-   \`\`\`
-   npm install
-   \`\`\`
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
 
-2. Run development server:
-   \`\`\`
-   npm run dev
-   \`\`\`
+## Build
 
-## Build Commands
-
-- \`npm run build\` - Build for production
-- \`npm run preview\` - Preview production build
-- \`npm run lint\` - TypeScript type checking
+\`\`\`bash
+npm run build
+\`\`\`
