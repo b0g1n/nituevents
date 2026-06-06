@@ -22,13 +22,16 @@ export default defineConfig(() => {
       assetsDir: 'assets',
       rollupOptions: {
         output: {
-          // Ensure assets are referenced correctly for WordPress
-          entryFileNames: 'assets/[name]-[hash].js',
+          // Stable filenames for WordPress
+          entryFileNames: 'assets/index.js',
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: ({ name }) => {
             // Keep favicon at root
             if (name && name.includes('favicon')) {
               return '[name][extname]';
+            }
+            if (name && name.endsWith('.css')) {
+              return 'assets/index.css';
             }
             return 'assets/[name]-[hash][extname]';
           },
