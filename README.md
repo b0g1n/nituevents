@@ -2,56 +2,71 @@
 
 Premium photography, videography and wedding decor services in Romania.
 
-## Shared Hosting Deployment
+## cPanel Shared Hosting Deployment
 
-### Files Included (dist/ folder)
+### Quick Deploy (3 steps)
 
+1. **Build**: `npm run build` (already done)
+2. **Upload**: Copy ALL contents of `dist/` folder to `public_html/` via cPanel File Manager or FTP
+3. **Done**: Visit your domain - the SPA works with client-side routing!
+
+### Files in `dist/` folder
 - `index.html` - Main SPA entry point
-- `.htaccess` - Apache URL rewriting for SPA routing
-- `server.php` - PHP fallback entry point (optional)
-- `favicon.svg` - SVG favicon
-- `favicon_nituevents_com_256x256.png` - PNG favicon (256x256)
-- `assets/index.js` - Built JavaScript bundle
-- `assets/index.css` - Built CSS bundle
+- `.htaccess` - **Critical!** Apache routing for SPA (handles `/foto`, `/video`, etc.)
+- `server.php` - Fallback if .htaccess fails (rename to `index.php`)
+- `favicon.svg` / `favicon_nituevents_com_256x256.png` - Favicons
+- `assets/index.js` - Built JavaScript
+- `assets/index.css` - Built CSS
 
-### Deployment Steps
+### cPanel File Manager Instructions
 
-1. **Upload via FTP/SFTP**:
-   - Upload all contents of `dist/` folder to your `public_html/` or `htdocs/` directory
-   - Or upload to a subdomain folder (e.g., `nituevents/`)
+1. Login to cPanel
+2. **File Manager** → Select `public_html` (or your addon domain folder)
+3. **Settings** (top right) → Check "Show Hidden Files" → Save
+4. **Upload** → Select all files from `dist/` folder
+5. Verify `.htaccess` is present (it's a hidden file)
 
-2. **For subdirectories** (if installing to `yourdomain.com/nituevents/`):
-   - The build already uses relative paths (`./`)
-   - No additional configuration needed
+### If Routing Doesn't Work
 
-3. **Verify installation**:
-   - Visit your domain - the site should load
-   - Test navigation between pages (Acasă, Foto, Video, Decor, Oglindă)
+Some hosts disable `.htaccess` overrides. Fix:
 
-### .htaccess Routing
+1. Rename `server.php` to `index.php`
+2. Delete `.htaccess`
+3. Site will work via PHP routing
 
-The included `.htaccess` handles:
-- SPA client-side routing (all non-file URLs redirect to index.html)
-- Static asset caching
-- Security blocking for sensitive files
+### Subdirectory Install (e.g., `yourdomain.com/nituevents/`)
 
-### PHP Alternative
+1. Upload to `public_html/nituevents/`
+2. Edit `.htaccess` - uncomment: `RewriteBase /nituevents/`
+3. Edit `server.php` (if using): set `$subdirectory = '/nituevents';`
 
-If your host has issues with `.htaccess`, rename:
-1. `index.html` → `spa.html`
-2. Use `server.php` as the main entry point
+### Force HTTPS (recommended)
+
+Add to `.htaccess` after `RewriteEngine On`:
+```apache
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+```
+
+### Enable Compression
+
+cPanel → **Optimize Website** → **Compress All Content** → Update
 
 ## Development
 
-**Prerequisites:** Node.js
-
-\`\`\`bash
+```bash
 npm install
 npm run dev
-\`\`\`
+```
 
 ## Build
 
-\`\`\`bash
+```bash
 npm run build
-\`\`\`
+```
+
+## Project Structure
+
+- `src/` - React components
+- `dist/` - Production build (deploy this)
+- `vite.config.ts` - Build configuration (relative paths for shared hosting)

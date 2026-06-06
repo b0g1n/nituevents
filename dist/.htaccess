@@ -1,20 +1,43 @@
-# Nitu Events SPA - Shared Hosting Configuration
+# Nitu Events SPA - cPanel Shared Hosting Configuration
+# Place this in your domain root (public_html) or subdirectory
 
 # Enable rewrite engine
 RewriteEngine On
 
-# If the requested filename exists, serve it
+# Handle subdirectory installations
+# If your site is in a subfolder (e.g., public_html/nituevents/),
+# uncomment and adjust the RewriteBase below:
+# RewriteBase /nituevents/
+
+# If the requested filename exists as a file, serve it
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
-# If the requested filename is a directory, serve it
+# If the requested filename exists as a directory, serve it
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Otherwise, rewrite to index.html (SPA entry point)
+# Otherwise, rewrite all requests to index.html (SPA routing)
 RewriteRule ^ index.html [L]
 
-# Security: Block access to sensitive files
+# ============================================
+# SECURITY HEADERS (cPanel mod_headers support)
+# ============================================
+<IfModule mod_headers.c>
+    # Prevent clickjacking
+    Header always append X-Frame-Options SAMEORIGIN
+    # MIME type sniffing protection
+    Header always set X-Content-Type-Options nosniff
+    # XSS protection
+    Header always set X-XSS-Protection "1; mode=block"
+    # Referrer policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ============================================
+# FILE ACCESS RESTRICTIONS
+# ============================================
+# Block access to hidden files and sensitive configs
 <Files ".env*">
     Order allow,deny
     Deny from all
@@ -25,11 +48,57 @@ RewriteRule ^ index.html [L]
     Deny from all
 </Files>
 
-# Cache static assets
+<Files "composer.*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "package*.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Block access to git files
+<Files ".git*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# ============================================
+# CACHING (cPanel mod_expires support)
+# ============================================
 <IfModule mod_expires.c>
     ExpiresActive On
+    
+    # Images - 1 year
     ExpiresByType image/png "access plus 1 year"
     ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # CSS/JS - 1 month
     ExpiresByType text/css "access plus 1 month"
     ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    
+    # HTML - no cache for SPA entry
+    ExpiresByType text/html "access plus 0 seconds"
 </IfModule>
+
+# ============================================
+# COMPRESSION (cPanel mod_deflate support)
+# ============================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json application/xml
+</IfModule>
+
+# ============================================
+# PHP DISABLE (if you only want static files)
+# ============================================
+# Uncomment to disable PHP execution in this directory (security)
+# <FilesMatch "\.php$">
+#     SetHandler default-handler
+# </FilesMatch>
