@@ -1,20 +1,57 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Nițu Events
 
-# Run and deploy your AI Studio app
+Premium photography, videography and wedding decor services in Romania.
 
-This contains everything you need to run your app locally.
+## Shared Hosting Deployment Instructions
 
-View your app in AI Studio: https://ai.studio/apps/613508ec-8b03-4592-a2aa-e69cfaf93211
+### Option A: Static Files (Apache/Nginx)
 
-## Run Locally
+1. **Build the project** (already done):
+   - All files in `dist/` are ready to deploy
+   - `index.html` is the entry point
+   - `.htaccess` handles SPA routing for Apache
 
-**Prerequisites:**  Node.js
+2. **Upload to shared hosting**:
+   - Upload all contents of `dist/` folder to your `public_html/` or `htdocs/` directory
+   - Or create a subdomain and point it to `dist/` folder
+   - File structure:
+   ```
+   public_html/
+   ├── index.html
+   ├── .htaccess
+   ├── favicon.svg
+   ├── favicon_nituevents_com_256x256.png
+   ├── assets/
+   │   ├── index.js
+   │   └── index.css
+   └── server.php (optional, for PHP compatibility)
+   ```
 
+3. **Verify**:
+   - Visit your domain - the SPA should load
+   - All routes should work (navigation, gallery, etc.)
+
+### Option B: PHP Wrapper (for hosts that prefer PHP entry)
+
+- Use `server.php` as entry point
+- Rename `index.html` to `spa.html` and adjust server.php if needed
+
+## Development
+
+**Prerequisites:** Node.js
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   \`\`\`
+   npm install
+   \`\`\`
+
+2. Run development server:
+   \`\`\`
+   npm run dev
+   \`\`\`
+
+## Build Commands
+
+- \`npm run build\` - Build for production
+- \`npm run preview\` - Preview production build
+- \`npm run lint\` - TypeScript type checking

@@ -1,0 +1,35 @@
+# Nitu Events SPA - Shared Hosting Configuration
+
+# Enable rewrite engine
+RewriteEngine On
+
+# If the requested filename exists, serve it
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# If the requested filename is a directory, serve it
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Otherwise, rewrite to index.html (SPA entry point)
+RewriteRule ^ index.html [L]
+
+# Security: Block access to sensitive files
+<Files ".env*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.config.*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
