@@ -5,6 +5,10 @@
  * Works with or without .htaccess
  */
 
+// Security: Disable error display in production
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 // Configuration
 $subdirectory = ''; // e.g., '/nituevents' if installed in subdirectory
 
@@ -22,8 +26,15 @@ $requestPath = ltrim($requestPath, '/');
 $baseDir = __DIR__;
 $indexFile = $baseDir . '/index.html';
 
+// Security headers for ALL responses
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self';");
+
 // Handle static files directly (for hosts where .htaccess doesn't work)
-if ($requestPath && $requestPath !== 'index.html' && $requestPath !== 'server.php') {
+if ($requestPath && $requestPath !== 'index.html' && $requestPath !== basename(__FILE__)) {
     $filePath = $baseDir . '/' . $requestPath;
     
     // Security: prevent directory traversal
@@ -31,12 +42,21 @@ if ($requestPath && $requestPath !== 'index.html' && $requestPath !== 'server.ph
     $realBaseDir = realpath($baseDir);
     
     if ($realFilePath && strpos($realFilePath, $realBaseDir) === 0 && is_file($realFilePath)) {
+        // Additional security: only allow specific extensions
+        $allowedExt = ['png', 'svg', 'jpg', 'jpeg', 'webp', 'ico', 'css', 'js', 'json', 'html', 'map'];
+        $ext = strtolower(pathinfo($realFilePath, PATHINFO_EXTENSION));
+        
+        if (!in_array($ext, $allowedExt)) {
+            http_response_code(403);
+            exit('Forbidden: File type not allowed');
+        }
+        
         // Serve static file with proper headers
-        $ext = pathinfo($realFilePath, PATHINFO_EXTENSION);
         $mimeTypes = [
             'html' => 'text/html',
             'css' => 'text/css',
             'js' => 'application/javascript',
+            'map' => 'application/json',
             'json' => 'application/json',
             'png' => 'image/png',
             'svg' => 'image/svg+xml',
@@ -51,8 +71,8 @@ if ($requestPath && $requestPath !== 'index.html' && $requestPath !== 'server.ph
         }
         
         // Cache static assets
-        if (in_array($ext, ['png', 'svg', 'jpg', 'jpeg', 'webp', 'ico', 'css', 'js'])) {
-            header('Cache-Control: public, max-age=31536000'); // 1 year
+        if (in_array($ext, ['png', 'svg', 'jpg', 'jpeg', 'webp', 'ico', 'css', 'js', 'map'])) {
+            header('Cache-Control: public, max-age=31536000, immutable'); // 1 year
         }
         
         readfile($realFilePath);
@@ -77,11 +97,6 @@ if (file_exists($indexFile)) {
     if ($subdirectory) {
         $content = str_replace('<head>', '<head><base href="' . $subdirectory . '/">', $content);
     }
-    
-    // Security headers (if not already sent by Apache)
-    header('X-Content-Type-Options: nosniff');
-    header('X-Frame-Options: SAMEORIGIN');
-    header('X-XSS-Protection: 1; mode=block');
     
     echo $content;
 } else {
